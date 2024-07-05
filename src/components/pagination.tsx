@@ -51,7 +51,7 @@ export function Pagination({ pages }: { pages: number }) {
         {'<<'}
       </div>
       <div
-        className="cursor-grab touch-none select-none overflow-hidden p-3"
+        className="flex-grow cursor-grab touch-none select-none overflow-hidden p-3"
         onPointerDown={(e) => {
           setPressed(true)
           e.nativeEvent.preventDefault()

@@ -2,14 +2,15 @@ import { useLoaderData } from 'react-router-dom'
 import { type Character } from 'rickmortyapi'
 
 export function Character() {
-  const character = useLoaderData() as Character | undefined
+  const character = useLoaderData() as Character | null
 
-  if (!character) return <h2>Нет такого персонажа</h2>
+  if (!character)
+    return <h2 className="text-center text-red-400">Нет такого персонажа</h2>
 
   const bullets = [
     { text: 'Имя:', value: character.name },
     { text: 'Пол:', value: character.gender },
-    { text: 'Местонахождения:', value: character.location.name },
+    { text: 'Местонахождение:', value: character.location.name },
     { text: 'Место рождения:', value: character.origin.name },
     { text: 'Вид:', value: character.species },
     { text: 'Тип:', value: character.type },

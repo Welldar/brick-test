@@ -5,6 +5,7 @@ import {
   getEpisode,
   getCharacter,
   getCharacters,
+  Info,
 } from 'rickmortyapi'
 
 export async function RootLoader({ request }: LoaderFunctionArgs) {
@@ -15,6 +16,11 @@ export async function RootLoader({ request }: LoaderFunctionArgs) {
   const status = searchParams.get('status') ?? ''
   const episode = searchParams.get('episode') ?? ''
 
+  let toBeReturned: {
+    info: Partial<Info<Character[]>['info']>
+    results: Info<Character[]>['results']
+  }
+
   if (episode) {
     const {
       data: { characters },
@@ -23,20 +29,24 @@ export async function RootLoader({ request }: LoaderFunctionArgs) {
       characters.map((character) => Number(character.split('/').pop()))
     )
 
-    const results = filterCharacters(data, { name, species, status }).filter(
-      ({ id }) => id
-    )
+    const results = filterCharacters(data, { name, species, status })
 
-    return {
-      results: results.length > 0 ? results : undefined,
+    toBeReturned = {
+      results,
       info: { count: results.length },
+    }
+  } else {
+    const { data } = await getCharacters({ page, name, species, status })
+
+    toBeReturned = {
+      results: data.results ?? [],
+      info: data.info,
     }
   }
 
-  const { data } = await getCharacters({ page, name, species, status })
-  const f = data.results?.filter(({ id }) => id) ?? []
-  data.results = f.length > 0 ? f : undefined
-  return data
+  toBeReturned.results = toBeReturned.results?.filter(({ id }) => id) ?? []
+
+  return toBeReturned
 }
 
 function filterCharacters(

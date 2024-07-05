@@ -24,7 +24,9 @@ export function FormController<
 
   return (
     <div className={className}>
-      <label htmlFor={id}>{labelTxt}</label>
+      <label className="mb-2 block" htmlFor={id}>
+        {labelTxt}
+      </label>
       {/* @ts-expect-error: FIXME this used to work in TypeScript 4.x but not anymore */}
       <Controller
         defaultValue={URLSearchParams.get(id) ?? ''}

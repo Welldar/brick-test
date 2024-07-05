@@ -9,7 +9,7 @@ export function ResultsList() {
 
   return (
     <div>
-      <h2>Найдено {info?.count}</h2>
+      <h2>Найдено {info?.count ?? 0}</h2>
       <ul>
         {results?.map(({ name, image, species, status, id }) => (
           <ResultsItem

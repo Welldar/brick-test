@@ -3,9 +3,9 @@ import { getEpisodes, getEpisode, Episode } from 'rickmortyapi'
 import { Input } from './Input'
 import { debounce } from '../utils/useDebounce'
 
-const debouncedFetchTags = debounce(async function fetchTags(
+async function fetchTags(
   rawValue: string,
-  callback: React.Dispatch<React.SetStateAction<Episode[] | undefined>>
+  callback: (episodes: Episode[]) => void
 ) {
   const value = rawValue.trim().toLowerCase()
   const isNumber = value == '' ? false : !Object.is(Number(value), NaN)
@@ -25,8 +25,10 @@ const debouncedFetchTags = debounce(async function fetchTags(
 
   results = results?.filter(({ id }) => id) ?? []
 
-  callback(results.length > 0 ? results : undefined)
-}, 200)
+  callback(results)
+}
+
+const debouncedFetchTags = debounce(fetchTags, 200)
 
 export function AsyncInput({
   id,
@@ -41,30 +43,23 @@ export function AsyncInput({
   const [value, setValue] = useState<string>('')
 
   useEffect(() => {
-    const fetchInitialValues = async () => {
-      if (defaultValue) {
-        const {
-          data: { episode },
-        } = await getEpisode(+defaultValue)
-
-        setValue(episode)
-      }
-      const {
-        data: { results },
-      } = await getEpisodes()
-
-      setEpisodes(results)
-    }
-
-    fetchInitialValues()
+    if (defaultValue)
+      fetchTags(defaultValue, ([episode]: Episode[]) =>
+        setValue(episode.episode)
+      )
   }, [defaultValue])
+
+  useEffect(() => {
+    fetchTags('', setEpisodes)
+  }, [])
 
   return (
     <div className="group relative">
       <Input
         id={id}
         type="text"
-        defaultValue={value}
+        defaultValue=""
+        placeholder="Например: 5 или s01e05 или Meeseeks and Destroy"
         leftCol={
           <div className="flex h-full min-w-28 items-center gap-2 border-r-2 text-center text-zinc-400">
             <span
@@ -86,7 +81,7 @@ export function AsyncInput({
         tabIndex={0}
         className="invisible absolute z-10 mt-1 flex max-h-64 w-full flex-wrap justify-center gap-2 overflow-y-scroll rounded-md border border-zinc-200 bg-white p-2 shadow [scrollbar-width:thin] group-focus-within:visible"
       >
-        {episodes
+        {episodes?.length
           ? episodes.map(({ name, id: key, episode }) => (
               <Tag
                 episode={episode}
