@@ -1,21 +1,8 @@
-import { LoaderFunctionArgs, useLoaderData } from 'react-router-dom'
-import { type Character, getCharacter } from 'rickmortyapi'
-
-export async function CharacterLoader({ params }: LoaderFunctionArgs) {
-  const id = Number(params.id ?? -1)
-
-  try {
-    const { data, status } = await getCharacter(id)
-    return status == 200 ? data : undefined
-  } catch {
-    return undefined
-  }
-}
+import { useLoaderData } from 'react-router-dom'
+import { type Character } from 'rickmortyapi'
 
 export function Character() {
   const character = useLoaderData() as Character | undefined
-
-  console.log(character)
 
   if (!character) return <h2>Нет такого персонажа</h2>
 
@@ -30,7 +17,7 @@ export function Character() {
   ]
 
   return (
-    <div className="grid items-center justify-items-center gap-3 rounded-xl border border-zinc-300 p-3 shadow-2xl md:grid-flow-col">
+    <div className="mx-auto grid max-w-4xl items-center justify-items-center gap-3 rounded-xl border border-zinc-300 p-3 shadow-2xl md:grid-cols-[auto,1fr]">
       <img src={character.image} alt="" className="rounded-lg" />
       <dl className="items-center gap-x-8 gap-y-2 justify-self-stretch font-medium text-zinc-400 sm:grid sm:grid-cols-2 sm:p-5">
         {bullets.map(({ text, value }) => (
